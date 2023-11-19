@@ -7,14 +7,17 @@ struct OP_table{
 };
 
 struct SYM_table{
+    SYM_table();
+    SYM_table(std::string label, unsigned int address);
     std::string label;
-    unsigned int address = 0;
-    unsigned int length = 0;
-    bool err_flag = false;
+    unsigned int address;
+    unsigned int length;
+    bool err_flag;
     bool operator<(const SYM_table& b) const;
+    SYM_table& operator=(const SYM_table& b);
 };
 
-class hash_table {
+class hash_table {  // hash table for opcode
 public:
     hash_table();
     unsigned int hash(std::string key);
@@ -27,7 +30,7 @@ private:
     unsigned int cnt;
 };
 
-class BST {
+class BST {  // binary search tree for symbol table
 public:
     BST();
     void insert(std::string label, unsigned int address);

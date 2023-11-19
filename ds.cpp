@@ -2,8 +2,30 @@
 #include <functional>
 #include <iostream>
 
+SYM_table::SYM_table() {
+    label = "";
+    address = 0;
+    length = 0;
+    err_flag = false;
+}
+
+SYM_table::SYM_table(std::string label, unsigned int address) {
+    this->label = label;
+    this->address = address;
+    length = 0;
+    err_flag = false;
+}
+
 bool SYM_table::operator<(const SYM_table& b) const {
     return this->label < b.label;
+}
+
+SYM_table& SYM_table::operator=(const SYM_table& b) {
+    this->label = b.label;
+    this->address = b.address;
+    this->length = b.length;
+    this->err_flag = b.err_flag;
+    return *this;
 }
 
 hash_table::hash_table() {
@@ -38,23 +60,23 @@ BST::BST() {
 
 void BST::insert(std::string label, unsigned int address) {
     unsigned int index = 1;
+    SYM_table tmp(label, address);
+
     if (last == 1) {
-        arr[last].label = label;
-        arr[last].address = address;
+        arr[1] = tmp;
         ++cnt;
         ++last;
         return;
     }
 
     while (index < last && arr[index].label != "") {
-        if (label < arr[index].label) {
+        if (tmp < arr[index]) {
             index = index * 2;
         } else {
             index = index * 2 + 1;
         }
     }
-    arr[index].label = label;
-    arr[index].address = address;
+    arr[index] = tmp;
     ++cnt;
     if (index >= last) {
         last = index + 1;
