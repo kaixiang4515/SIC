@@ -1,6 +1,5 @@
 #include "ds.h"
 #include <functional>
-#include <iostream>
 
 SYM_table::SYM_table() {
     label = "";
