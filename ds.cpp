@@ -8,7 +8,7 @@ SYM_table::SYM_table() {
     err_flag = false;
 }
 
-SYM_table::SYM_table(std::string label, unsigned int address) {
+SYM_table::SYM_table(const std::string& label, unsigned int address) {
     this->label = label;
     this->address = address;
     length = 0;
@@ -31,24 +31,24 @@ hash_table::hash_table() {
     cnt = 0;
 }
 
-unsigned int hash_table::hash(std::string key) {
+unsigned int hash_table::hash(const std::string& key) const {
     return (unsigned int)(int(std::hash<std::string>{}(key))%691+700);
 }
 
-void hash_table::insert(std::string key, std::string value) {
+void hash_table::insert(const std::string& key, const std::string& value) {
     arr[hash(key)].value = value;
     ++cnt;
 }
 
-bool hash_table::find(std::string key) {
+bool hash_table::find(const std::string& key) const {
     return arr[hash(key)].value != "";
 }
 
-std::string hash_table::at(std::string key) {
+std::string hash_table::at(const std::string& key) const {
     return arr[hash(key)].value;
 }
 
-unsigned int hash_table::size() {
+unsigned int hash_table::size() const {
     return cnt;
 }
 
@@ -57,7 +57,7 @@ BST::BST() {
     last = 1;
 }
 
-void BST::insert(std::string label, unsigned int address) {
+void BST::insert(const std::string& label, unsigned int address) {
     unsigned int index = 1;
     SYM_table tmp(label, address);
 
@@ -82,7 +82,21 @@ void BST::insert(std::string label, unsigned int address) {
     }
 }
 
-unsigned int BST::find(std::string label) {
+void BST::set_error(const std::string& label) {
+    unsigned int index = 1;
+    while (index < last) {
+        if (label  == arr[index].label) {
+            arr[index].err_flag = true;
+            return;
+        } else if (label < arr[index].label) {
+            index = index * 2;
+        } else {
+            index = index * 2 + 1;
+        }
+    }
+}
+
+unsigned int BST::find(const std::string& label) const {
     unsigned int index = 1;
     while (index < last) {
         if (label  == arr[index].label) {
@@ -96,6 +110,6 @@ unsigned int BST::find(std::string label) {
     return 0;
 }
 
-unsigned int BST::size() {
+unsigned int BST::size() const {
     return cnt;
 }

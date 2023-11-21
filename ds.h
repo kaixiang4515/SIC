@@ -8,7 +8,7 @@ struct OP_table{
 
 struct SYM_table{
     SYM_table();
-    SYM_table(std::string label, unsigned int address);
+    SYM_table(const std::string& label, unsigned int address);
     std::string label;
     unsigned int address;
     unsigned int length;
@@ -20,11 +20,11 @@ struct SYM_table{
 class hash_table {  // hash table for opcode
 public:
     hash_table();
-    unsigned int hash(std::string key);
-    void insert(std::string key, std::string value);
-    bool find(std::string key);
-    std::string at(std::string key);
-    unsigned int size();
+    unsigned int hash(const std::string& key) const;
+    void insert(const std::string& key, const std::string& value);
+    bool find(const std::string& key) const;
+    std::string at(const std::string& key) const;
+    unsigned int size() const;
 private:
     OP_table arr[1500];
     unsigned int cnt;
@@ -33,9 +33,10 @@ private:
 class BST {  // binary search tree for symbol table
 public:
     BST();
-    void insert(std::string label, unsigned int address);
-    unsigned int find(std::string lebel); // return index of the array
-    unsigned int size();
+    void insert(const std::string& label, unsigned int address);
+    void set_error(const std::string& label);
+    unsigned int find(const std::string& lebel) const; // return index of the array, if not found, return 0
+    unsigned int size() const;
 private:
     SYM_table arr[1500];
     unsigned int cnt;
