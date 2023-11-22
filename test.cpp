@@ -57,5 +57,12 @@ int main(){
     cout << "\n";
     cout << dec_to_hex(1000) << "\n";
     cout << hex_to_dec(0x1000) << "\n";
+    try {
+        cout << 1 << "\n";
+        throw "hehe";
+        cout << 2 << "\n";
+    } catch (const char* msg) {
+        cerr << msg << "\n";
+    }
     return 0;
 }
