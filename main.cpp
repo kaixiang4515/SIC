@@ -12,10 +12,10 @@ vector<string> vs;
 hash_table op_table;
 BST sym_table;
 
-unsigned int hex_to_dec(unsigned int h) {
+unsigned int str_to_dec(string s) {
     unsigned int d = 0;
     stringstream ss;
-    ss << h;
+    ss << s;
     ss >> hex >> d;
     return d;
 }
@@ -57,7 +57,7 @@ int main(){
         if(arr[0] == ".") continue;
 
         if(cnt == 3 && arr[1] == "START") {
-            locctr = hex_to_dec(stoi(arr[2]));
+            locctr = str_to_dec(arr[2]);
             pass1_out << uppercase << hex << locctr << "\t" << str << "\n";
             continue;
         }
