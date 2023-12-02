@@ -37,6 +37,9 @@ public:
     void set_error(const std::string& label);
     unsigned int find(const std::string& lebel) const; // return index of the array, if not found, return 0
     unsigned int size() const;
+    unsigned int end() const; // return the index of the past-the-end element
+    std::string get_label(unsigned int index) const;
+    bool is_empty(unsigned int index) const;
 private:
     SYM_table arr[1500];
     unsigned int cnt;

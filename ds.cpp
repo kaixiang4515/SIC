@@ -83,17 +83,8 @@ void BST::insert(const std::string& label, unsigned int address) {
 }
 
 void BST::set_error(const std::string& label) {
-    unsigned int index = 1;
-    while (index < last) {
-        if (label  == arr[index].label) {
-            arr[index].err_flag = true;
-            return;
-        } else if (label < arr[index].label) {
-            index = index * 2;
-        } else {
-            index = index * 2 + 1;
-        }
-    }
+    unsigned int index = find(label);
+    if(index) arr[index].err_flag = true;
 }
 
 unsigned int BST::find(const std::string& label) const {
@@ -112,4 +103,16 @@ unsigned int BST::find(const std::string& label) const {
 
 unsigned int BST::size() const {
     return cnt;
+}
+
+unsigned int BST::end() const {
+    return last;
+}
+
+std::string BST::get_label(unsigned int index) const {
+    return arr[index].label;
+}
+
+bool BST::is_empty(unsigned int index) const {
+    return arr[index].label == "";
 }

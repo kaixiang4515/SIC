@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <sstream>
 #include <exception>
 #define REP(i,n) for(int i=0;i<int(n);++i)
@@ -18,6 +19,24 @@ unsigned int str_to_dec(string s) {
     ss << s;
     ss >> hex >> d;
     return d;
+}
+
+void print_OP_table() {
+    ofstream fout("./out/OP_table.txt");
+    REP(i,vs.size()) {
+        fout << left << setw(7) << vs[i] << " in hash_table[" << op_table.hash(vs[i]) << "] , value : " << op_table.at(vs[i]) << "\n";
+    }
+    fout.close();
+}
+
+void print_SYM_table(unsigned int n) {
+    if(n >= sym_table.end() || sym_table.is_empty(n)) return;
+    print_SYM_table(n*2);
+    ofstream fout;
+    fout.open("./out/SYM_table.txt",ios::app);
+    fout << left << setw(10) << sym_table.get_label(n) << " in BST[" << sym_table.find(sym_table.get_label(n)) << "]\n";
+    fout.close();
+    print_SYM_table(n*2+1);
 }
 
 int main(){
@@ -63,8 +82,8 @@ int main(){
         }
 
         try {
-            if(cnt == 3 && !op_table.find(arr[0])) {  // there is a symbol in the LABEL field
-                if(sym_table.find(arr[0])) {                // duplicate symbol
+            if(cnt == 3) {      // there is a symbol in the LABEL field
+                if(sym_table.find(arr[0])) {  // duplicate symbol
                     sym_table.set_error(arr[0]);
                     throw "Error: duplicate symbol";
                 } else {
@@ -105,5 +124,9 @@ int main(){
     }
     sic_in.close();
     pass1_out.close();
+    print_OP_table();
+    ofstream clear_symtab("./out/SYM_table.txt");
+    clear_symtab.close();
+    print_SYM_table(1);
     return 0;
 }
