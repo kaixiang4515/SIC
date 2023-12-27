@@ -42,3 +42,4 @@
 #else
 *.asm
 t2.cpp
+test.cpp

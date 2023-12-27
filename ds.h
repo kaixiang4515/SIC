@@ -39,6 +39,7 @@ public:
     unsigned int size() const;
     unsigned int end() const; // return the index of the past-the-end element
     std::string get_label(unsigned int index) const;
+    unsigned int get_addr(unsigned int index) const;
     bool is_empty(unsigned int index) const;
 private:
     SYM_table arr[1500];

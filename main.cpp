@@ -13,12 +13,20 @@ vector<string> vs;
 hash_table op_table;
 BST sym_table;
 
-unsigned int str_to_dec(string s) {
+unsigned int str_to_dec(string s) {     // convert hex value in string to decimal unsigned int value
     unsigned int d = 0;
     stringstream ss;
     ss << s;
     ss >> hex >> d;
     return d;
+}
+
+string dec_to_str(unsigned int n) {     // convert decimal unsigned int value to hex value in string
+    string s;
+    stringstream ss;
+    ss << hex << uppercase << n;
+    ss >> s;
+    return s;
 }
 
 void print_OP_table() {
@@ -44,6 +52,7 @@ int main(){
     ofstream fout("./out/test.txt");
     string str,a,b;
     stringstream ss;
+    unsigned int begin_addr = 0, end_addr = 0;
     while(getline(op_in,str)) {
         ss.clear();
         ss.str(str);
@@ -77,6 +86,7 @@ int main(){
 
         if(cnt == 3 && arr[1] == "START") {
             locctr = str_to_dec(arr[2]);
+            begin_addr = end_addr = locctr;
             pass1_out << uppercase << hex << locctr << "\t" << str << "\n";
             continue;
         }
@@ -96,7 +106,9 @@ int main(){
 
         int idx = cnt == 3 ? 1 : 0;
         if(arr[idx] != "END") 
-            pass1_out << uppercase << hex << locctr << "\t" << str << "\n";
+            pass1_out << uppercase << hex << left << setw(5) << locctr << "\t" << str << "\n";
+        else
+            pass1_out << "     \t";
         
         try {
             if(op_table.find(arr[idx])) {
@@ -115,6 +127,8 @@ int main(){
                 }
             } else if(arr[idx] == "END") {
                 pass1_out << str << "\n";
+                //cout << hex << uppercase << locctr << "\n";
+                end_addr = locctr;
             } else {
                 throw "Error: invalid operation code";
             }
@@ -128,5 +142,65 @@ int main(){
     ofstream clear_symtab("./out/SYM_table.txt");
     clear_symtab.close();
     print_SYM_table(1);
+
+    // Pass 2
+    ifstream pass2_in("./out/intermediate_file.txt");
+    ofstream pass2_out("./out/object_code.txt");
+    while(getline(pass2_in,str)) {
+        string arr[4];
+        string buf;
+        int cnt = 0;
+        ss.clear();
+        ss.str(str);
+        while(ss >> arr[cnt]) {
+            ++cnt;
+        }
+        //cout << str << " cnt: " << cnt << "\n";
+        if(cnt == 4 && arr[2] == "START") {
+            pass2_out << "H" << setw(6) << left << arr[1] << setw(6) << setfill('0') << hex << uppercase << right << begin_addr << setw(6) << hex << uppercase << end_addr - begin_addr;
+            continue;
+        }
+        
+        int idx = cnt == 2 ? 1 : cnt - 2;
+        if(idx == 1 && arr[0] == "END")
+            idx = 0;
+        //cout << arr[idx] << "\n";
+        const string& OP = arr[idx];
+        unsigned int operand_addr = 0;
+        bool X = false;
+        if(OP != "END") {
+            if(op_table.find(OP)) {
+                if(cnt > 2){    // there is a symbol in OPERAND field
+                    try {
+                        string OPERAND = arr[idx+1];
+                        auto pos = OPERAND.find(",X");
+                        if(pos != string::npos) {
+                            OPERAND = string(OPERAND.begin(), OPERAND.begin()+pos);
+                            X = true;
+                        }
+                        
+                        //cout << OPERAND << " ";
+                        unsigned int operand_idx = sym_table.find(OPERAND);
+                        if(operand_idx) {
+                            operand_addr = sym_table.get_addr(operand_idx);
+                            //cout << hex << uppercase << operand_addr << "\n";
+                        } else {
+                            //cout << str << " ";
+                            throw "Error: undefined symbol";
+                        }
+                    } catch (const char* msg) {
+                        cerr << msg << "\n";
+                    }
+                }
+                buf.clear();
+                buf += op_table.at(OP);
+                if(X) operand_addr += 1 << 15;
+                buf += dec_to_str(operand_addr);
+                cout << buf << "\n";
+            } else if(OP == "BYTE" || OP == "WORD") {
+
+            }
+        }
+    }
     return 0;
 }

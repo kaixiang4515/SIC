@@ -113,6 +113,10 @@ std::string BST::get_label(unsigned int index) const {
     return arr[index].label;
 }
 
+unsigned int BST::get_addr(unsigned int index) const {
+    return arr[index].address;
+}
+
 bool BST::is_empty(unsigned int index) const {
     return arr[index].label == "";
 }
