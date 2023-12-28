@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <sstream>
 #include <exception>
-#define REP(i,n) for(int i=0;i<int(n);++i)
+#define REP(i,n) for(int i=0;i<(int)(n);++i)
 
 using namespace std;
 
@@ -13,7 +13,7 @@ vector<string> vs;
 hash_table op_table;
 BST sym_table;
 
-unsigned int str_to_dec(string s) {     // convert hex value in string to decimal unsigned int value
+unsigned int hex_to_dec(string s) {     // convert hex value in string to decimal unsigned int value
     unsigned int d = 0;
     stringstream ss;
     ss << s;
@@ -21,12 +21,20 @@ unsigned int str_to_dec(string s) {     // convert hex value in string to decima
     return d;
 }
 
-string dec_to_str(unsigned int n) {     // convert decimal unsigned int value to hex value in string
+string dec_to_hex(unsigned int d, int width = 4, bool Left = true) {     // convert decimal unsigned int value to hex value in string
     string s;
     stringstream ss;
-    ss << hex << uppercase << n;
+    ss << hex << uppercase << setw(width) << setfill('0') << (Left ? left : right) << d;
     ss >> s;
     return s;
+}
+
+string str_to_ascii_in_hex(string s) {
+    stringstream ss;
+    REP(i,s.size()) {
+        ss << hex << uppercase << setw(2) << setfill('0') << (int)s[i];
+    }
+    return ss.str();
 }
 
 void print_OP_table() {
@@ -85,7 +93,7 @@ int main(){
         if(arr[0] == ".") continue;
 
         if(cnt == 3 && arr[1] == "START") {
-            locctr = str_to_dec(arr[2]);
+            locctr = hex_to_dec(arr[2]);
             begin_addr = end_addr = locctr;
             pass1_out << uppercase << hex << locctr << "\t" << str << "\n";
             continue;
@@ -195,10 +203,25 @@ int main(){
                 buf.clear();
                 buf += op_table.at(OP);
                 if(X) operand_addr += 1 << 15;
-                buf += dec_to_str(operand_addr);
+                buf += dec_to_hex(operand_addr);
                 cout << buf << "\n";
-            } else if(OP == "BYTE" || OP == "WORD") {
-
+            } else if(OP == "BYTE") {
+                string OPERAND = arr[idx+1];
+                string content(OPERAND.begin()+2,OPERAND.end()-1);
+                if(OPERAND[0] == 'C') {
+                    buf.clear();
+                    buf += str_to_ascii_in_hex(content);
+                    cout << buf << "\n";
+                } else {
+                    buf.clear();
+                    buf += content;
+                    cout << buf << "\n";
+                }
+            } else if(OP == "WORD") {
+                string OPERAND = arr[idx+1];
+                buf.clear();
+                buf += dec_to_hex(stoi(OPERAND), 6, false);
+                cout << buf << "\n";
             }
         }
     }
