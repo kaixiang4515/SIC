@@ -154,9 +154,11 @@ int main(){
     // Pass 2
     ifstream pass2_in("./out/intermediate_file.txt");
     ofstream pass2_out("./out/object_code.txt");
+    unsigned int start_addr = 0;
+    string buf;
+    buf.clear();
     while(getline(pass2_in,str)) {
         string arr[4];
-        string buf;
         int cnt = 0;
         ss.clear();
         ss.str(str);
@@ -165,18 +167,22 @@ int main(){
         }
         //cout << str << " cnt: " << cnt << "\n";
         if(cnt == 4 && arr[2] == "START") {
-            pass2_out << "H" << setw(6) << left << arr[1] << setw(6) << setfill('0') << hex << uppercase << right << begin_addr << setw(6) << hex << uppercase << end_addr - begin_addr;
+            pass2_out << "H" << setw(6) << left << arr[1] << setw(6) << setfill('0') << hex << uppercase << right << begin_addr << setw(6) << hex << uppercase << end_addr - begin_addr << "\n";
+            start_addr = hex_to_dec(arr[3]);
+            pass2_out << "T" << dec_to_hex(start_addr, 6, false);
             continue;
         }
         
-        int idx = cnt == 2 ? 1 : cnt - 2;
+        int idx = cnt == 2 ? 1 : cnt - 2;   // index of op_code
         if(idx == 1 && arr[0] == "END")
             idx = 0;
         //cout << arr[idx] << "\n";
         const string& OP = arr[idx];
-        unsigned int operand_addr = 0;
+        unsigned int operand_addr = 0, current_addr = hex_to_dec(arr[0]);
         bool X = false;
         if(OP != "END") {
+            string ts;
+            ts.clear();
             if(op_table.find(OP)) {
                 if(cnt > 2){    // there is a symbol in OPERAND field
                     try {
@@ -200,30 +206,38 @@ int main(){
                         cerr << msg << "\n";
                     }
                 }
-                buf.clear();
-                buf += op_table.at(OP);
+                ts += op_table.at(OP);
                 if(X) operand_addr += 1 << 15;
-                buf += dec_to_hex(operand_addr);
-                cout << buf << "\n";
+                ts += dec_to_hex(operand_addr);
+                //cout << buf << "\n";
             } else if(OP == "BYTE") {
                 string OPERAND = arr[idx+1];
                 string content(OPERAND.begin()+2,OPERAND.end()-1);
                 if(OPERAND[0] == 'C') {
-                    buf.clear();
-                    buf += str_to_ascii_in_hex(content);
-                    cout << buf << "\n";
+                    ts += str_to_ascii_in_hex(content);
+                    //cout << buf << "\n";
                 } else {
-                    buf.clear();
-                    buf += content;
-                    cout << buf << "\n";
+                    ts += content;
+                    //cout << buf << "\n";
                 }
             } else if(OP == "WORD") {
                 string OPERAND = arr[idx+1];
-                buf.clear();
-                buf += dec_to_hex(stoi(OPERAND), 6, false);
-                cout << buf << "\n";
+                ts += dec_to_hex(stoi(OPERAND), 6, false);
+                //cout << buf << "\n";
+            }
+            if(buf.size() + ts.size() <= 60 && current_addr - start_addr <=30) buf += ts;
+            else {
+                pass2_out << setw(2) << setfill('0') << right << hex << uppercase << (buf.size()/2) << buf << "\n";
+                pass2_out << "T" << dec_to_hex(start_addr = current_addr, 6, false);
+                buf = ts;
             }
         }
     }
+    if(buf.size()) {
+        pass2_out << setw(2) << setfill('0') << right << hex << uppercase << (buf.size()/2) << buf << "\n";
+    }
+    pass2_out << "E" << dec_to_hex(begin_addr, 6, false);
+    pass2_in.close();
+    pass2_out.close();
     return 0;
 }
