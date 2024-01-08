@@ -154,10 +154,12 @@ int main(){
     // Pass 2
     ifstream pass2_in("./out/intermediate_file.txt");
     ofstream pass2_out("./out/object_code.txt");
+    ofstream assembly_listing("./out/assembly_listing.txt");
     unsigned int start_addr = 0;
     string buf;
     buf.clear();
     while(getline(pass2_in,str)) {
+        assembly_listing << str;
         string arr[4];
         int cnt = 0;
         ss.clear();
@@ -170,6 +172,7 @@ int main(){
             pass2_out << "H" << setw(6) << left << arr[1] << setw(6) << setfill('0') << hex << uppercase << right << begin_addr << setw(6) << hex << uppercase << end_addr - begin_addr << "\n";
             start_addr = hex_to_dec(arr[3]);
             pass2_out << "T" << dec_to_hex(start_addr, 6, false);
+            assembly_listing << "\n";
             continue;
         }
         
@@ -225,6 +228,7 @@ int main(){
                 ts += dec_to_hex(stoi(OPERAND), 6, false);
                 //cout << buf << "\n";
             }
+            assembly_listing << "\t" << ts << "\n";
             if(buf.size() + ts.size() <= 60 && current_addr - start_addr <=30) buf += ts;
             else {
                 pass2_out << setw(2) << setfill('0') << right << hex << uppercase << (buf.size()/2) << buf << "\n";
